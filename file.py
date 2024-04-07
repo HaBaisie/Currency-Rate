@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import pickle
-
+st.title("US Dollars Rate Prediction Over Time")
 # Load the pickled model
 with open('exchange_rate_model.pkl', 'rb') as f:
     model = pickle.load(f)
