@@ -36,6 +36,7 @@ if st.button("Predict"):
         future_scaled_input_data = np.vstack([scaled_input_data, np.zeros((len(future_dates), scaled_input_data.shape[1]))])
 
         # Predict future exchange rates
+        future_exchange_rates = np.zeros((len(future_dates), 3))
         for i, future_date in enumerate(future_dates):
             future_exchange_rates_scaled = model.predict(future_scaled_input_data[i].reshape(1, -1))
             future_exchange_rates[i] = scaler.inverse_transform(future_exchange_rates_scaled)
