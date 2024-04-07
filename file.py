@@ -25,6 +25,7 @@ future_date_str = st.text_input("Enter a future date (YYYY-MM-DD): ")
 # Predict button
 if st.button("Predict"):
     if future_date_str:
+        print (future_date_str)
         future_date = pd.to_datetime(future_date_str)
 
         # Prepare input data for prediction
