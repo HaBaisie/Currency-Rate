@@ -32,19 +32,18 @@ if st.button("Predict"):
         scaled_input_data = scaler.transform(historical_data[['Buying Rate', 'Central Rate', 'Selling Rate']])
 
         # Extend time range for prediction (e.g., 30 days into the future)
-        future_dates = pd.date_range(start=historical_data['Rate Date'].iloc[-1], periods=30, freq='D')[1:]  # Exclude the last date
+        future_dates = pd.date_range(start=historical_data['Rate Date'].iloc[-1], periods=50000, freq='D')[1:]  # Exclude the last date
         future_scaled_input_data = np.vstack([scaled_input_data, np.zeros((len(future_dates), scaled_input_data.shape[1]))])
 
-        # Predict future exchange rates
-        future_exchange_rates = np.zeros((len(future_dates), 3))
-        for i, future_date in enumerate(future_dates):
-            future_exchange_rates_scaled = model.predict(future_scaled_input_data[i].reshape(1, -1))
-            future_exchange_rates[i] = scaler.inverse_transform(future_exchange_rates_scaled)
+        # Find index of the input future date
+        future_date_index = historical_data['Rate Date'].searchsorted(future_date)
 
-        # Display predicted future exchange rates
-        st.write("Predicted future exchange rates:")
-        for i, date in enumerate(future_dates):
-            st.write("Date:", date)
-            st.write("Buying Rate:", future_exchange_rates[i, 0])
-            st.write("Central Rate:", future_exchange_rates[i, 1])
-            st.write("Selling Rate:", future_exchange_rates[i, 2])
+        # Predict exchange rates for the input future date
+        future_exchange_rates_scaled = model.predict(future_scaled_input_data[future_date_index].reshape(1, -1))
+        future_exchange_rates = scaler.inverse_transform(future_exchange_rates_scaled)
+
+        # Display predicted exchange rates for the input future date
+        st.write("Predicted exchange rates for", future_date)
+        st.write("Buying Rate:", future_exchange_rates[0, 0])
+        st.write("Central Rate:", future_exchange_rates[0, 1])
+        st.write("Selling Rate:", future_exchange_rates[0, 2])
