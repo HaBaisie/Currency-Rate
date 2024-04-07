@@ -2,8 +2,11 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-import pickle
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_squared_error
+
 st.title("US Dollars Rate Prediction Over Time")
+
 # Load the pickled model
 with open('exchange_rate_model.pkl', 'rb') as f:
     model = pickle.load(f)
@@ -14,10 +17,7 @@ df = pd.read_csv('exchange24032024.csv')
 # Data Preprocessing
 df['Rate Date'] = pd.to_datetime(df['Rate Date'])
 usd_df = df[df['Currency'] == 'US DOLLAR'][['Rate Date', 'Buying Rate', 'Central Rate', 'Selling Rate']]
-
-# Normalization
-scaler = MinMaxScaler()
-scaled_data = scaler.fit_transform(usd_df[['Buying Rate', 'Central Rate', 'Selling Rate']])
+usd_df.set_index('Rate Date', inplace=True)
 
 # User input for future date
 future_date_str = st.text_input("Enter a future date (YYYY-MM-DD): ")
@@ -25,21 +25,19 @@ future_date_str = st.text_input("Enter a future date (YYYY-MM-DD): ")
 # Predict button
 if st.button("Predict"):
     if future_date_str:
-        print (future_date_str)
         future_date = pd.to_datetime(future_date_str)
 
         # Prepare input data for prediction
-        historical_data = usd_df[usd_df['Rate Date'] <= future_date]
-        scaled_input_data = scaler.transform(historical_data[['Buying Rate', 'Central Rate', 'Selling Rate']])
-        
-        # Predict future exchange rates using all historical data
-        future_exchange_rates_scaled = model.predict(scaled_input_data)
+        historical_data = usd_df['Buying Rate']  # Using 'Buying Rate' as an example
+        train_data = historical_data[:future_date]
 
-        # Inverse transform to get the actual predicted values
-        future_exchange_rates = scaler.inverse_transform(future_exchange_rates_scaled)
+        # Fit ARIMA model
+        model = ARIMA(train_data, order=(5,1,0))  # Example order, you might need to tune this
+        fitted_model = model.fit()
 
-        # Display predicted future exchange rates
-        st.write("Predicted future exchange rates:")
-        st.write("Buying Rate:", future_exchange_rates[0, 0])
-        st.write("Central Rate:", future_exchange_rates[0, 1])
-        st.write("Selling Rate:", future_exchange_rates[0, 2])
+        # Predict future exchange rates
+        forecast = fitted_model.forecast(steps=1)[0]
+
+        # Display predicted future exchange rate
+        st.write("Predicted future exchange rate for", future_date)
+        st.write("Buying Rate:", forecast)
