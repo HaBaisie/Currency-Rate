@@ -25,21 +25,21 @@ future_date_str = st.text_input("Enter a future date (YYYY-MM-DD): ")
 # Predict button
 if st.button("Predict"):
     if future_date_str:
+        print (future_date_str)
         future_date = pd.to_datetime(future_date_str)
 
         # Prepare input data for prediction
-        historical_data = usd_df.copy()  # Use all historical data
+        historical_data = usd_df[usd_df['Rate Date'] <= future_date]
         scaled_input_data = scaler.transform(historical_data[['Buying Rate', 'Central Rate', 'Selling Rate']])
+        
+        # Predict future exchange rates using all historical data
+        future_exchange_rates_scaled = model.predict(scaled_input_data)
 
-        # Find index of the input future date
-        future_date_index = historical_data['Rate Date'].searchsorted(future_date)
-
-        # Predict exchange rates for the input future date
-        future_exchange_rates_scaled = model.predict(scaled_input_data[future_date_index].reshape(1, -1))
+        # Inverse transform to get the actual predicted values
         future_exchange_rates = scaler.inverse_transform(future_exchange_rates_scaled)
 
-        # Display predicted exchange rates for the input future date
-        st.write("Predicted exchange rates for", future_date)
+        # Display predicted future exchange rates
+        st.write("Predicted future exchange rates:")
         st.write("Buying Rate:", future_exchange_rates[0, 0])
         st.write("Central Rate:", future_exchange_rates[0, 1])
         st.write("Selling Rate:", future_exchange_rates[0, 2])
