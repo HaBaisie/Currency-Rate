@@ -31,9 +31,9 @@ if st.button("Predict"):
         # Prepare input data for prediction
         historical_data = usd_df[usd_df['Rate Date'] <= future_date]
         scaled_input_data = scaler.transform(historical_data[['Buying Rate', 'Central Rate', 'Selling Rate']])
-
-        # Predict future exchange rates
-        future_exchange_rates_scaled = model.predict(scaled_input_data[-1].reshape(1, -1))
+        
+        # Predict future exchange rates using all historical data
+        future_exchange_rates_scaled = model.predict(scaled_input_data)
 
         # Inverse transform to get the actual predicted values
         future_exchange_rates = scaler.inverse_transform(future_exchange_rates_scaled)
