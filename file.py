@@ -31,15 +31,11 @@ if st.button("Predict"):
         historical_data = usd_df.copy()  # Use all historical data
         scaled_input_data = scaler.transform(historical_data[['Buying Rate', 'Central Rate', 'Selling Rate']])
 
-        # Extend time range for prediction (e.g., 30 days into the future)
-        future_dates = pd.date_range(start=historical_data['Rate Date'].iloc[-1], periods=50000, freq='D')[1:]  # Exclude the last date
-        future_scaled_input_data = np.vstack([scaled_input_data, np.zeros((len(future_dates), scaled_input_data.shape[1]))])
-
         # Find index of the input future date
         future_date_index = historical_data['Rate Date'].searchsorted(future_date)
 
         # Predict exchange rates for the input future date
-        future_exchange_rates_scaled = model.predict(future_scaled_input_data[future_date_index].reshape(1, -1))
+        future_exchange_rates_scaled = model.predict(scaled_input_data[future_date_index].reshape(1, -1))
         future_exchange_rates = scaler.inverse_transform(future_exchange_rates_scaled)
 
         # Display predicted exchange rates for the input future date
