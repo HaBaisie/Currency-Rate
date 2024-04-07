@@ -8,8 +8,8 @@ from sklearn.metrics import mean_squared_error
 st.title("US Dollars Rate Prediction Over Time")
 
 # Load the pickled model
-with open('exchange_rate_model.pkl', 'rb') as f:
-    model = pickle.load(f)
+#with open('exchange_rate_model.pkl', 'rb') as f:
+    #model = pickle.load(f)
 
 # Load the dataset
 df = pd.read_csv('exchange24032024.csv')
